@@ -82,7 +82,7 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:1rem;">
       {% for rec in recommendations %}
-      <div class="card" style="border-left:4px solid {{ 'var(--brand-500)' if loop.index == 1 else 'var(--slate-200)' }};">
+      <div class="card" {% if loop.index == 1 %}style="border-left:4px solid var(--brand-500);"{% else %}style="border-left:4px solid var(--slate-200);"{% endif %}>
         <div class="flex justify-between items-start flex-wrap gap-4">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-2 flex-wrap">
