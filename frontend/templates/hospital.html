@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hospital / Doctor Login – MediBridge AI</title>
+  <meta name="description" content="Hospital admin and doctor login portal for MediBridge AI."/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body class="auth-page" style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#075187 100%);">
+
+<div class="auth-box animate-fade-up">
+  <!-- Logo -->
+  <div class="auth-logo">
+    <div class="auth-logo-icon" style="background:linear-gradient(135deg,#0f766e,#0891b2);">🏨</div>
+    <h2>MediBridge AI</h2>
+    <p>Hospital / Doctor Portal</p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+        {{ '⚠️' if category == 'error' else '✅' }} {{ message }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  <h3 style="margin-bottom:0.25rem;">Staff Portal Access</h3>
+  <p class="text-sm text-muted mb-4">Sign in to manage patients, appointments, and hospital operations.</p>
+
+  <form method="POST" action="/hospital-login" id="hospForm">
+    <div class="form-group">
+      <label class="form-label">Role</label>
+      <select name="role" class="form-control">
+        <option value="doctor">👨‍⚕️ Doctor</option>
+        <option value="hospital_admin">🏥 Hospital Admin</option>
+        <option value="super_admin">👑 Super Admin</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <div class="form-control-wrap">
+        <span class="form-control-icon">✉️</span>
+        <input name="email" type="email" class="form-control icon-left"
+               placeholder="staff@hospital.com" required/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="form-control-wrap">
+        <span class="form-control-icon">🔒</span>
+        <input name="password" type="password" class="form-control icon-left"
+               placeholder="••••••••" required/>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-full btn-lg" id="hospBtn"
+            style="background:linear-gradient(135deg,#0f766e,#0891b2);color:white;border:none;border-radius:var(--radius-lg);padding:.875rem 2rem;font-weight:700;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .15s;">
+      Sign In to Staff Portal
+    </button>
+  </form>
+
+  <!-- Demo credentials -->
+  <div class="demo-creds mt-4">
+    <p>Demo Staff Credentials</p>
+    <div class="cred-row"><strong>Doctor:</strong> <span>doctor@medibridge.com / password</span></div>
+    <div class="cred-row"><strong>Admin:</strong> <span>admin@medibridge.com / password</span></div>
+    <div class="cred-row"><strong>Super Admin:</strong> <span>superadmin@medibridge.com / password</span></div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="/" class="text-sm text-muted">← Back to Home</a>
+    &nbsp;·&nbsp;
+    <a href="/patient-login" class="text-sm">Patient Login</a>
+  </div>
+</div>
+
+<script>
+  document.getElementById('hospForm').addEventListener('submit', function() {
+    const btn = document.getElementById('hospBtn');
+    btn.innerHTML = '<span class="spinner"></span>&nbsp;Signing in…';
+    btn.disabled = true;
+  });
+</script>
+</body>
+</html>

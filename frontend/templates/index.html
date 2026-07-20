@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediBridge AI – Smart Hospital Discovery Platform</title>
+  <meta name="description" content="AI-powered multi-hospital platform to find the best hospital, book appointments and manage medical records." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+<!-- ═══════════════════════════ NAVBAR ═══════════════════════════ -->
+<nav class="navbar">
+  <a class="navbar-brand" href="/">
+    <div class="navbar-logo-icon">🏥</div>
+    MediBridge<span style="color:var(--brand-400)">AI</span>
+  </a>
+  <ul class="navbar-nav hide-mobile">
+    <li><a href="/" class="active">Home</a></li>
+    <li><a href="#hospitals">Hospitals</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/patient-login" class="btn btn-ghost btn-sm">Patient Login</a>
+    <a href="/hospital-login" class="btn btn-secondary btn-sm">Hospital</a>
+    <a href="/patient-register" class="btn btn-primary btn-sm">Get Started</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      🤖 AI-Powered Healthcare Discovery
+    </div>
+    <h1>Find the Right Hospital,<br>Right When You Need It</h1>
+    <p>MediBridge AI intelligently matches you with the best hospital and specialist based on your symptoms, budget, location, and availability — instantly.</p>
+    <div class="hero-actions">
+      <a href="/patient-register" class="btn btn-primary btn-lg">
+        🚀 Start For Free
+      </a>
+      <a href="#how-it-works" class="btn btn-secondary btn-lg" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:white;">
+        ▶ See How It Works
+      </a>
+    </div>
+
+    <!-- Quick Stats -->
+    <div style="display:flex;gap:3rem;margin-top:3.5rem;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:2rem;font-weight:900;color:white;">500+</div>
+        <div style="color:rgba(255,255,255,.6);font-size:.85rem;font-weight:500;">Hospitals Networked</div>
+      </div>
+      <div>
+        <div style="font-size:2rem;font-weight:900;color:white;">12K+</div>
+        <div style="color:rgba(255,255,255,.6);font-size:.85rem;font-weight:500;">Doctors Available</div>
+      </div>
+      <div>
+        <div style="font-size:2rem;font-weight:900;color:white;">98%</div>
+        <div style="color:rgba(255,255,255,.6);font-size:.85rem;font-weight:500;">Patient Satisfaction</div>
+      </div>
+      <div>
+        <div style="font-size:2rem;font-weight:900;color:white;">&lt;3min</div>
+        <div style="color:rgba(255,255,255,.6);font-size:.85rem;font-weight:500;">Avg. Booking Time</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ SEARCH BAR ═══════════════════════════ -->
+<section style="background:white;padding:2rem 1.5rem;border-bottom:1px solid var(--slate-100);">
+  <div class="container-md">
+    <form action="/search-hospitals" method="GET">
+      <div class="search-bar">
+        <span style="color:var(--slate-400);font-size:1.1rem;">🔍</span>
+        <input name="query" type="text" placeholder="Search by hospital name, city, or specialty (e.g. Cardiology, Mumbai)…" />
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FEATURES ═══════════════════════════ -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="text-center mb-8">
+      <h2>Everything You Need in One Platform</h2>
+      <p class="mt-2" style="max-width:560px;margin:0.75rem auto 0;">From symptom detection to appointment confirmation, MediBridge AI handles your entire healthcare journey.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card card-hover animate-fade-up">
+        <div class="feature-icon">🤖</div>
+        <h4>AI Symptom Matcher</h4>
+        <p class="mt-2 text-sm">Describe your symptoms and our AI engine matches you with the most suitable specialist and hospital instantly.</p>
+      </div>
+      <div class="card card-hover animate-fade-up" style="animation-delay:.1s">
+        <div class="feature-icon">📅</div>
+        <h4>Instant Appointments</h4>
+        <p class="mt-2 text-sm">View real-time doctor availability and book confirmed appointments in under 3 minutes — no calling required.</p>
+      </div>
+      <div class="card card-hover animate-fade-up" style="animation-delay:.2s">
+        <div class="feature-icon">📋</div>
+        <h4>Digital Medical Records</h4>
+        <p class="mt-2 text-sm">All your prescriptions, diagnoses, and reports in one secure place — accessible anytime, anywhere.</p>
+      </div>
+      <div class="card card-hover animate-fade-up" style="animation-delay:.1s">
+        <div class="feature-icon">💰</div>
+        <h4>Budget-Friendly Matching</h4>
+        <p class="mt-2 text-sm">Filter hospitals by estimated treatment cost so you always receive care within your financial comfort zone.</p>
+      </div>
+      <div class="card card-hover animate-fade-up" style="animation-delay:.2s">
+        <div class="feature-icon">📍</div>
+        <h4>Location-Based Discovery</h4>
+        <p class="mt-2 text-sm">Find top-rated hospitals closest to you sorted by distance, waiting time, and specialty availability.</p>
+      </div>
+      <div class="card card-hover animate-fade-up" style="animation-delay:.3s">
+        <div class="feature-icon">🏆</div>
+        <h4>Priority Scoring</h4>
+        <p class="mt-2 text-sm">Every hospital receives a dynamic priority score based on ratings, cost, wait time, and match accuracy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ HOW IT WORKS ═══════════════════════════ -->
+<section class="section section-alt" id="how-it-works">
+  <div class="container">
+    <div class="text-center mb-8">
+      <h2>Book an Appointment in 4 Easy Steps</h2>
+    </div>
+    <div class="grid-4">
+      <div class="text-center">
+        <div style="width:60px;height:60px;border-radius:50%;background:var(--brand-600);color:white;font-size:1.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 24px rgba(12,109,224,.3);">1</div>
+        <h4>Describe Symptoms</h4>
+        <p class="mt-2 text-sm">Enter your symptoms, preferred location, age, and budget into our simple AI form.</p>
+      </div>
+      <div class="text-center">
+        <div style="width:60px;height:60px;border-radius:50%;background:var(--brand-600);color:white;font-size:1.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 24px rgba(12,109,224,.3);">2</div>
+        <h4>Get AI Recommendations</h4>
+        <p class="mt-2 text-sm">Our engine analyzes 7 factors and ranks the top hospitals with priority scores and reasons.</p>
+      </div>
+      <div class="text-center">
+        <div style="width:60px;height:60px;border-radius:50%;background:var(--brand-600);color:white;font-size:1.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 24px rgba(12,109,224,.3);">3</div>
+        <h4>Choose & Book</h4>
+        <p class="mt-2 text-sm">Select your preferred hospital, pick a doctor, choose an available date and time slot.</p>
+      </div>
+      <div class="text-center">
+        <div style="width:60px;height:60px;border-radius:50%;background:var(--brand-600);color:white;font-size:1.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 24px rgba(12,109,224,.3);">4</div>
+        <h4>Track Your Health</h4>
+        <p class="mt-2 text-sm">After your visit, access prescriptions and medical records from your personal digital health file.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ HOSPITALS SHOWCASE ═══════════════════════════ -->
+<section class="section" id="hospitals">
+  <div class="container">
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+      <h2>Featured Hospital Partners</h2>
+      <a href="/patient-login" class="btn btn-secondary">View All Hospitals →</a>
+    </div>
+    <div class="grid-3">
+      {% for hospital in hospitals %}
+      <div class="hospital-card">
+        <div class="hospital-card-header">
+          <h3>{{ hospital.name }}</h3>
+          <p>📍 {{ hospital.city }}</p>
+        </div>
+        <div class="hospital-card-body">
+          <div class="stars">★★★★★</div>
+          <div class="text-xs text-muted mt-1">Rating: {{ hospital.rating }}/5</div>
+          <div class="hospital-card-meta">
+            <span>⏱ Wait: <strong>{{ hospital.waiting_time }}m</strong></span>
+            <span>💰 Avg: <strong>${{ hospital.avg_cost }}</strong></span>
+          </div>
+          <div class="tag-list">
+            {% for spec in hospital.specialty %}
+            <span class="pill">{{ spec }}</span>
+            {% endfor %}
+          </div>
+          <a href="/patient-login" class="btn btn-primary btn-sm btn-full mt-4">Book Appointment →</a>
+        </div>
+      </div>
+      {% else %}
+      <div class="hospital-card">
+        <div class="hospital-card-header"><h3>Mercy General Hospital</h3><p>📍 New York</p></div>
+        <div class="hospital-card-body">
+          <div class="stars">★★★★★</div><div class="text-xs text-muted mt-1">Rating: 4.8/5</div>
+          <div class="hospital-card-meta"><span>⏱ Wait: <strong>15m</strong></span><span>💰 Avg: <strong>$200</strong></span></div>
+          <div class="tag-list"><span class="pill">Cardiology</span><span class="pill">Pediatrics</span><span class="pill">General</span></div>
+          <a href="/patient-login" class="btn btn-primary btn-sm btn-full mt-4">Book Appointment →</a>
+        </div>
+      </div>
+      <div class="hospital-card">
+        <div class="hospital-card-header"><h3>St. Jude Health Center</h3><p>📍 New York</p></div>
+        <div class="hospital-card-body">
+          <div class="stars">★★★★½</div><div class="text-xs text-muted mt-1">Rating: 4.5/5</div>
+          <div class="hospital-card-meta"><span>⏱ Wait: <strong>25m</strong></span><span>💰 Avg: <strong>$120</strong></span></div>
+          <div class="tag-list"><span class="pill">Orthopedics</span><span class="pill">Neurology</span><span class="pill">General</span></div>
+          <a href="/patient-login" class="btn btn-primary btn-sm btn-full mt-4">Book Appointment →</a>
+        </div>
+      </div>
+      <div class="hospital-card">
+        <div class="hospital-card-header"><h3>Oakridge Family Clinic</h3><p>📍 Boston</p></div>
+        <div class="hospital-card-body">
+          <div class="stars">★★★★½</div><div class="text-xs text-muted mt-1">Rating: 4.6/5</div>
+          <div class="hospital-card-meta"><span>⏱ Wait: <strong>10m</strong></span><span>💰 Avg: <strong>$80</strong></span></div>
+          <div class="tag-list"><span class="pill">Pediatrics</span><span class="pill">Dermatology</span><span class="pill">General</span></div>
+          <a href="/patient-login" class="btn btn-primary btn-sm btn-full mt-4">Book Appointment →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ CTA SECTION ═══════════════════════════ -->
+<section style="background:linear-gradient(135deg,var(--brand-900),var(--brand-700));padding:4rem 1.5rem;text-align:center;color:white;">
+  <div class="container">
+    <h2 style="color:white;margin-bottom:1rem;">Ready to take control of your healthcare?</h2>
+    <p style="color:rgba(255,255,255,.75);margin-bottom:2rem;">Join thousands of patients who book smarter with MediBridge AI.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="/patient-register" class="btn btn-primary btn-lg">Create Patient Account</a>
+      <a href="/hospital-login" class="btn btn-secondary btn-lg" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:white;">Hospital / Doctor Portal</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="grid-4">
+      <div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;">
+          <div style="width:32px;height:32px;background:var(--brand-600);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🏥</div>
+          <span style="color:white;font-weight:800;">MediBridge AI</span>
+        </div>
+        <p style="font-size:.85rem;line-height:1.6;">AI-powered healthcare discovery platform connecting patients with the best hospitals.</p>
+      </div>
+      <div>
+        <h4>Platform</h4>
+        <a href="/">Home</a>
+        <a href="/patient-register">Patient Signup</a>
+        <a href="/patient-login">Patient Login</a>
+        <a href="/hospital-login">Hospital Portal</a>
+      </div>
+      <div>
+        <h4>Services</h4>
+        <a href="#">AI Recommendations</a>
+        <a href="#">Book Appointments</a>
+        <a href="#">Medical Records</a>
+        <a href="#">Hospital Discovery</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <a href="#">support@medibridge.ai</a>
+        <a href="#">+1 (800) MEDI-AI</a>
+        <a href="#">New York, NY 10001</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 MediBridge AI. All rights reserved.</span>
+      <span>Built for Hackathon 🏆</span>
+    </div>
+  </div>
+</footer>
+
+
+
+</body>
+</html>

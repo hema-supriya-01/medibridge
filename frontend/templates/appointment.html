@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Appointment – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><div class="navbar-logo-icon">🏥</div>MediBridge<span style="color:var(--brand-400)">AI</span></a>
+  <div class="navbar-actions">
+    <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <p class="sidebar-section-title">Main Menu</p>
+    <a href="/dashboard" class="sidebar-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="/ai-recommend" class="sidebar-item"><span class="icon">🤖</span> AI Recommendation</a>
+    <a href="/appointment" class="sidebar-item active"><span class="icon">📅</span> Book Appointment</a>
+    <a href="/appointments" class="sidebar-item"><span class="icon">🗂️</span> My Appointments</a>
+    <a href="/records" class="sidebar-item"><span class="icon">📋</span> Medical Records</a>
+    <p class="sidebar-section-title">Account</p>
+    <a href="/logout" class="sidebar-item"><span class="icon">🚪</span> Logout</a>
+  </aside>
+
+  <main class="dashboard-content">
+    <div class="mb-6">
+      <h2>📅 Book an Appointment</h2>
+      <p class="text-sm text-muted mt-1">Select a hospital, choose a doctor, and pick a date and time slot.</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="steps mb-6">
+      <div class="step {{ 'active' if step == 1 else 'done' }}">
+        <div class="step-circle">{{ '✓' if step > 1 else '1' }}</div>
+        <div class="step-label">Choose Hospital</div>
+      </div>
+      <div class="step {{ 'active' if step == 2 else ('done' if step > 2 else '') }}">
+        <div class="step-circle">{{ '✓' if step > 2 else '2' }}</div>
+        <div class="step-label">Select Doctor</div>
+      </div>
+      <div class="step {{ 'active' if step == 3 else '' }}">
+        <div class="step-circle">3</div>
+        <div class="step-label">Date &amp; Time</div>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }} mb-4">
+          {{ '⚠️' if category == 'error' else '✅' }} {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- STEP 1: Choose Hospital -->
+    {% if step == 1 %}
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="card-title">Step 1: Select a Hospital</div>
+      </div>
+
+      <!-- Filter Bar -->
+      <form method="GET" action="/appointment" class="flex gap-3 flex-wrap mb-4">
+        <input name="city" type="text" class="form-control" style="max-width:180px;"
+               placeholder="Filter by city…" value="{{ request.args.get('city','') }}"/>
+        <input name="specialty" type="text" class="form-control" style="max-width:200px;"
+               placeholder="Filter by specialty…" value="{{ request.args.get('specialty','') }}"/>
+        <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+      </form>
+
+      <div class="grid-2">
+        {% for h in hospitals %}
+        <form method="POST" action="/appointment/select-hospital">
+          <input type="hidden" name="hospital_id" value="{{ h.id }}"/>
+          <button type="submit" class="w-full" style="text-align:left;background:none;border:1.5px solid var(--slate-200);border-radius:var(--radius-lg);padding:1.25rem;cursor:pointer;transition:all .2s;font-family:inherit;">
+            <div style="font-weight:700;color:var(--slate-900);font-size:.95rem;">{{ h.name }}</div>
+            <div style="font-size:.78rem;color:var(--slate-500);margin:.3rem 0;">📍 {{ h.city }} &nbsp;·&nbsp; ⭐ {{ h.rating }}/5</div>
+            <div style="display:flex;gap:.75rem;font-size:.78rem;color:var(--slate-600);margin:.5rem 0;">
+              <span>⏱ {{ h.waiting_time }}m wait</span>
+              <span>💰 ${{ h.avg_cost }} avg</span>
+            </div>
+            <div class="tag-list">
+              {% for s in h.specialty %}
+              <span class="pill" style="font-size:.7rem;">{{ s }}</span>
+              {% endfor %}
+            </div>
+          </button>
+        </form>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- STEP 2: Choose Doctor -->
+    {% if step == 2 %}
+    <div class="card mb-4">
+      <div class="card-header flex justify-between items-center">
+        <div>
+          <div class="card-title">Step 2: Select a Doctor</div>
+          <div class="card-subtitle">At {{ selected_hospital.name }}</div>
+        </div>
+        <a href="/appointment" class="btn btn-ghost btn-sm">← Change Hospital</a>
+      </div>
+      {% if doctors %}
+      <div class="grid-2">
+        {% for doc in doctors %}
+        <form method="POST" action="/appointment/select-doctor">
+          <input type="hidden" name="doctor_id" value="{{ doc.id }}"/>
+          <button type="submit" class="w-full" style="text-align:left;background:none;border:1.5px solid var(--slate-200);border-radius:var(--radius-lg);padding:1.25rem;cursor:pointer;transition:all .2s;font-family:inherit;">
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;">
+              <div class="avatar">{{ doc.name[0] }}</div>
+              <div>
+                <div style="font-weight:700;color:var(--slate-900);">{{ doc.name }}</div>
+                <div class="badge badge-blue" style="font-size:.7rem;">{{ doc.specialty }}</div>
+              </div>
+            </div>
+            <div style="font-size:.78rem;color:var(--slate-500);">Available: {{ doc.availability | join(', ') }}</div>
+          </button>
+        </form>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:2rem;color:var(--slate-400);">
+        <div style="font-size:2rem;">👨‍⚕️</div>
+        <p class="text-sm mt-2">No doctors registered at this hospital yet.</p>
+        <a href="/appointment" class="btn btn-secondary btn-sm mt-2">Choose Different Hospital</a>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- STEP 3: Date & Time -->
+    {% if step == 3 %}
+    <div class="card mb-4">
+      <div class="card-header flex justify-between items-center">
+        <div>
+          <div class="card-title">Step 3: Choose Date &amp; Time Slot</div>
+          <div class="card-subtitle">{{ selected_hospital.name }} · Dr. {{ selected_doctor.name }} ({{ selected_doctor.specialty }})</div>
+        </div>
+        <a href="/appointment?step=2" class="btn btn-ghost btn-sm">← Back</a>
+      </div>
+
+      <form method="POST" action="/appointment/confirm" id="bookForm">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Appointment Date</label>
+            <input name="date" type="date" class="form-control" required
+                   min="{{ today }}" value="{{ request.form.date or '' }}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Available Time Slot</label>
+            <select name="slot" class="form-control" required>
+              <option value="">-- Select a slot --</option>
+              {% for slot in selected_doctor.time_slots %}
+              <option value="{{ slot }}">{{ slot }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div style="background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.5rem;">
+          <h4 style="margin-bottom:.75rem;">📋 Booking Summary</h4>
+          <div class="grid-2" style="font-size:.85rem;gap:.5rem 1.5rem;">
+            <div><span class="text-muted">Hospital:</span> <strong>{{ selected_hospital.name }}</strong></div>
+            <div><span class="text-muted">City:</span> <strong>{{ selected_hospital.city }}</strong></div>
+            <div><span class="text-muted">Doctor:</span> <strong>Dr. {{ selected_doctor.name }}</strong></div>
+            <div><span class="text-muted">Specialty:</span> <strong>{{ selected_doctor.specialty }}</strong></div>
+            <div><span class="text-muted">Est. Cost:</span> <strong>${{ selected_hospital.avg_cost }}</strong></div>
+            <div><span class="text-muted">Wait Time:</span> <strong>~{{ selected_hospital.waiting_time }} min</strong></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full" id="confirmBtn">
+          ✅ Confirm Appointment Booking
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+  </main>
+</div>
+
+<script>
+  const btn = document.getElementById('confirmBtn');
+  if (btn) {
+    document.getElementById('bookForm').addEventListener('submit', function() {
+      btn.innerHTML = '<span class="spinner"></span>&nbsp;Booking…';
+      btn.disabled = true;
+    });
+  }
+  // Add hover effect to hospital/doctor buttons
+  document.querySelectorAll('button[style*="cursor:pointer"]').forEach(btn => {
+    btn.addEventListener('mouseenter', () => { btn.style.borderColor = 'var(--brand-400)'; btn.style.boxShadow = 'var(--shadow)'; });
+    btn.addEventListener('mouseleave', () => { btn.style.borderColor = 'var(--slate-200)'; btn.style.boxShadow = 'none'; });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor Dashboard – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><div class="navbar-logo-icon">🏥</div>MediBridge<span style="color:var(--brand-400)">AI</span></a>
+  <div class="navbar-actions">
+    <div class="avatar">{{ session.name[0] | upper if session.name else 'D' }}</div>
+    <span class="text-sm font-semibold hide-mobile">{{ session.name or 'Doctor' }}</span>
+    <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <p class="sidebar-section-title">Doctor Panel</p>
+    <a href="/doctor/dashboard" class="sidebar-item active"><span class="icon">📊</span> Dashboard</a>
+    <a href="/doctor/appointments" class="sidebar-item"><span class="icon">📅</span> Appointments</a>
+    <a href="/doctor/prescribe" class="sidebar-item"><span class="icon">💊</span> Write Prescription</a>
+    <p class="sidebar-section-title">Account</p>
+    <a href="/logout" class="sidebar-item"><span class="icon">🚪</span> Logout</a>
+  </aside>
+
+  <main class="dashboard-content">
+    <!-- Welcome Banner -->
+    <div style="background:linear-gradient(135deg,#0f766e,#0891b2);border-radius:var(--radius-xl);padding:2rem;color:white;margin-bottom:2rem;">
+      <h2 style="color:white;margin-bottom:.4rem;">Good day, Dr. {{ session.name or 'Doctor' }}! 👨‍⚕️</h2>
+      <p style="color:rgba(255,255,255,.8);">You have <strong>{{ stats.today_appointments or 0 }}</strong> patient{{ 's' if stats.today_appointments != 1 }} scheduled for today.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-4 mb-8">
+      <div class="stat-card">
+        <div class="stat-card-info">
+          <p>Today's Queue</p>
+          <div class="stat-card-value">{{ stats.today_appointments or 0 }}</div>
+        </div>
+        <div class="stat-card-icon blue">📅</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-info">
+          <p>Pending</p>
+          <div class="stat-card-value">{{ stats.pending or 0 }}</div>
+        </div>
+        <div class="stat-card-icon amber">⏳</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-info">
+          <p>Completed</p>
+          <div class="stat-card-value">{{ stats.completed or 0 }}</div>
+        </div>
+        <div class="stat-card-icon green">✅</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-info">
+          <p>Total Patients</p>
+          <div class="stat-card-value">{{ stats.total or 0 }}</div>
+        </div>
+        <div class="stat-card-icon purple">👥</div>
+      </div>
+    </div>
+
+    <!-- Today's Appointments -->
+    <div class="card mb-6">
+      <div class="card-header flex justify-between items-center">
+        <div>
+          <div class="card-title">Today's Patient Queue</div>
+          <div class="card-subtitle">{{ today_date }}</div>
+        </div>
+        <a href="/doctor/appointments" class="btn btn-secondary btn-sm">View All →</a>
+      </div>
+
+      {% if today_appointments %}
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        {% for appt in today_appointments %}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:var(--slate-50);border-radius:var(--radius);flex-wrap:wrap;gap:.75rem;">
+          <div style="display:flex;align-items:center;gap:.875rem;">
+            <div class="avatar">{{ appt.patient_name[0] | upper }}</div>
+            <div>
+              <div class="font-semibold text-sm">{{ appt.patient_name }}</div>
+              <div class="text-xs text-muted">{{ appt.slot }}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+            <span class="badge {{ 'badge-green' if appt.status == 'completed' else 'badge-blue' }}">{{ appt.status | title }}</span>
+            {% if appt.status == 'booked' %}
+            <a href="/doctor/prescribe?appointment_id={{ appt.id }}&patient_id={{ appt.patient_id }}" class="btn btn-primary btn-sm">Prescribe</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:2rem;color:var(--slate-400);">
+        <div style="font-size:2rem;">✅</div>
+        <p class="text-sm mt-2">No appointments scheduled for today.</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

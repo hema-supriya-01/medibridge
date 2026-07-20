@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Hospital Recommendation – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><div class="navbar-logo-icon">🏥</div>MediBridge<span style="color:var(--brand-400)">AI</span></a>
+  <div class="navbar-actions">
+    <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <p class="sidebar-section-title">Main Menu</p>
+    <a href="/dashboard" class="sidebar-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="/ai-recommend" class="sidebar-item active"><span class="icon">🤖</span> AI Recommendation</a>
+    <a href="/appointment" class="sidebar-item"><span class="icon">📅</span> Book Appointment</a>
+    <a href="/appointments" class="sidebar-item"><span class="icon">🗂️</span> My Appointments</a>
+    <a href="/records" class="sidebar-item"><span class="icon">📋</span> Medical Records</a>
+    <p class="sidebar-section-title">Discover</p>
+    <a href="/search-hospitals" class="sidebar-item"><span class="icon">🔍</span> Find Hospitals</a>
+    <a href="/search-doctors" class="sidebar-item"><span class="icon">👨‍⚕️</span> Find Doctors</a>
+    <p class="sidebar-section-title">Account</p>
+    <a href="/logout" class="sidebar-item"><span class="icon">🚪</span> Logout</a>
+  </aside>
+
+  <main class="dashboard-content">
+    <div class="mb-6">
+      <h2>🤖 AI Hospital Recommendation</h2>
+      <p class="text-sm text-muted mt-1">Describe your condition and preferences. Our AI engine will rank the best hospitals for you.</p>
+    </div>
+
+    <!-- Input Form -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <div class="card-title">Tell Us About Your Condition</div>
+        <div class="card-subtitle">We analyze 7 factors to match you with the perfect hospital</div>
+      </div>
+      <form method="POST" action="/ai-recommend" id="aiForm">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Symptoms / Medical Concern</label>
+            <textarea name="symptoms" class="form-control" rows="3"
+              placeholder="Describe your symptoms, e.g. chest pain, shortness of breath, palpitations…" required>{{ request.form.symptoms or '' }}</textarea>
+          </div>
+          <div>
+            <div class="form-group">
+              <label class="form-label">Preferred City / Location</label>
+              <div class="form-control-wrap">
+                <span class="form-control-icon">📍</span>
+                <input name="location" type="text" class="form-control icon-left"
+                       placeholder="e.g. New York" value="{{ request.form.location or '' }}" required/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Maximum Budget (USD)</label>
+              <div class="form-control-wrap">
+                <span class="form-control-icon">💰</span>
+                <input name="budget" type="number" class="form-control icon-left"
+                       placeholder="e.g. 200" value="{{ request.form.budget or '' }}" required/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" id="aiBtn">
+          🤖 Analyze &amp; Get Recommendations
+        </button>
+      </form>
+    </div>
+
+    <!-- Results -->
+    {% if recommendations %}
+    <div class="mb-4">
+      <h3>📊 Recommendation Results</h3>
+      <p class="text-sm text-muted mt-1">Matched specialty: <strong>{{ matched_specialty }}</strong> — Showing {{ recommendations | length }} hospitals ranked by priority score.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      {% for rec in recommendations %}
+      <div class="card" style="border-left:4px solid {{ 'var(--brand-500)' if loop.index == 1 else 'var(--slate-200)' }};">
+        <div class="flex justify-between items-start flex-wrap gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+              {% if loop.index == 1 %}
+              <span class="badge badge-amber">🥇 Best Match</span>
+              {% elif loop.index == 2 %}
+              <span class="badge badge-gray">🥈 #2</span>
+              {% else %}
+              <span class="badge badge-gray">#{{ loop.index }}</span>
+              {% endif %}
+              <span class="badge badge-green">Score: {{ rec.score }}%</span>
+            </div>
+            <h3 style="margin-bottom:.25rem;">{{ rec.hospital.name }}</h3>
+            <p class="text-sm text-muted">📍 {{ rec.hospital.city }} · ⭐ {{ rec.hospital.rating }}/5 · Avg Cost: ${{ rec.hospital.avg_cost }} · Wait: {{ rec.hospital.waiting_time }}min</p>
+            <div class="tag-list mt-2">
+              {% for s in rec.hospital.specialty %}
+              <span class="pill">{{ s }}</span>
+              {% endfor %}
+            </div>
+            <div style="background:var(--slate-50);border:1px solid var(--slate-100);border-radius:var(--radius);padding:.75rem;margin-top:.75rem;">
+              <p class="text-xs text-muted font-semibold" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;">AI Reason</p>
+              <p class="text-sm">{{ rec.reason }}</p>
+            </div>
+            {% if rec.doctor %}
+            <div style="margin-top:.5rem;" class="flex items-center gap-2">
+              <span class="text-sm">👨‍⚕️ Suggested Doctor:</span>
+              <strong class="text-sm">{{ rec.doctor.name }}</strong>
+              <span class="badge badge-blue">{{ rec.doctor.specialty }}</span>
+            </div>
+            {% endif %}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;min-width:150px;">
+            <a href="/appointment?hospital_id={{ rec.hospital.id }}" class="btn btn-primary btn-sm">Book Here →</a>
+            <a href="/search-hospitals?id={{ rec.hospital.id }}" class="btn btn-secondary btn-sm">View Details</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </main>
+</div>
+
+<script>
+  document.getElementById('aiForm').addEventListener('submit', function() {
+    const btn = document.getElementById('aiBtn');
+    btn.innerHTML = '<span class="spinner"></span>&nbsp;AI is analyzing…';
+    btn.disabled = true;
+  });
+</script>
+</body>
+</html>

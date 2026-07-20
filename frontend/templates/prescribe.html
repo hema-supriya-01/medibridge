@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Write Prescription – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><div class="navbar-logo-icon">🏥</div>MediBridge<span style="color:var(--brand-400)">AI</span></a>
+  <div class="navbar-actions">
+    <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <p class="sidebar-section-title">Doctor Panel</p>
+    <a href="/doctor/dashboard" class="sidebar-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="/doctor/appointments" class="sidebar-item"><span class="icon">📅</span> Appointments</a>
+    <a href="/doctor/prescribe" class="sidebar-item active"><span class="icon">💊</span> Write Prescription</a>
+    <p class="sidebar-section-title">Account</p>
+    <a href="/logout" class="sidebar-item"><span class="icon">🚪</span> Logout</a>
+  </aside>
+
+  <main class="dashboard-content">
+    <div class="mb-6">
+      <h2>💊 Write Prescription &amp; Close Appointment</h2>
+      <p class="text-sm text-muted mt-1">Add diagnosis, prescriptions, and any diagnostic reports for the patient.</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }} mb-4">
+          {{ '⚠️' if category == 'error' else '✅' }} {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- Patient Search -->
+    <div class="card mb-4">
+      <div class="card-title mb-3">Find Patient Appointment</div>
+      <form method="GET" action="/doctor/prescribe" class="flex gap-3 flex-wrap">
+        <input name="appointment_id" type="text" class="form-control" style="max-width:280px;"
+               placeholder="Enter Appointment ID…" value="{{ request.args.get('appointment_id','') }}"/>
+        <button type="submit" class="btn btn-secondary">Look Up</button>
+      </form>
+    </div>
+
+    {% if appointment %}
+    <!-- Patient Info -->
+    <div class="card mb-4" style="border-color:var(--brand-200);background:var(--brand-50);">
+      <div class="grid-2">
+        <div>
+          <p class="text-xs text-muted font-semibold uppercase">Patient</p>
+          <h3>{{ appointment.patient_name }}</h3>
+          <p class="text-sm text-muted">Age: {{ appointment.patient_age }} · {{ appointment.patient_gender }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-muted font-semibold uppercase">Appointment</p>
+          <p class="text-sm"><strong>{{ appointment.date }}</strong> at <strong>{{ appointment.slot }}</strong></p>
+          <p class="text-sm text-muted">{{ appointment.hospital_name }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prescription Form -->
+    <div class="card">
+      <div class="card-title mb-4">📝 Medical Diagnosis &amp; Prescription</div>
+      <form method="POST" action="/doctor/prescribe">
+        <input type="hidden" name="appointment_id" value="{{ appointment.id }}"/>
+        <input type="hidden" name="patient_id" value="{{ appointment.patient_id }}"/>
+
+        <div class="form-group">
+          <label class="form-label">Diagnosis / Medical Finding</label>
+          <input name="diagnosis" type="text" class="form-control"
+                 placeholder="e.g. Acute Bronchitis" required/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Prescription (one per line)</label>
+          <textarea name="prescriptions" class="form-control" rows="4"
+            placeholder="e.g. Amoxicillin 500mg – 3x daily for 5 days&#10;Paracetamol 500mg – as needed for fever" required></textarea>
+          <p class="text-xs text-muted mt-1">Enter each medication on a new line.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Diagnostic Reports / Referrals (optional)</label>
+          <textarea name="reports" class="form-control" rows="2"
+            placeholder="e.g. Chest X-Ray, Blood CBC"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg btn-full">
+          ✅ Save Prescription &amp; Mark Appointment Complete
+        </button>
+      </form>
+    </div>
+
+    <!-- Previous Records -->
+    {% if patient_history %}
+    <div class="card mt-4">
+      <div class="card-title mb-4">📂 Previous Consultation History</div>
+      {% for rec in patient_history %}
+      <div style="padding:.875rem 0;border-bottom:1px solid var(--slate-100);">
+        <div class="flex justify-between items-center">
+          <strong class="text-sm">{{ rec.diagnosis }}</strong>
+          <span class="text-xs text-muted">{{ rec.date }}</span>
+        </div>
+        <p class="text-xs text-muted mt-1">💊 {{ rec.prescriptions | join(', ') }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% elif request.args.get('appointment_id') %}
+    <div class="alert alert-error">Appointment not found. Please check the ID and try again.</div>
+    {% endif %}
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Hospitals – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><div class="navbar-logo-icon">🏥</div>MediBridge<span style="color:var(--brand-400)">AI</span></a>
+  <div class="navbar-actions">
+    {% if session.get('user_id') %}
+    <a href="/dashboard" class="btn btn-ghost btn-sm">Dashboard</a>
+    {% else %}
+    <a href="/patient-login" class="btn btn-ghost btn-sm">Login</a>
+    <a href="/patient-register" class="btn btn-primary btn-sm">Get Started</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container mt-8 mb-8">
+  <div class="mb-6 text-center">
+    <h2>Search Hospitals</h2>
+    <p class="text-sm text-muted mt-2">Find the right hospital for your needs</p>
+  </div>
+  
+  <div class="card mb-8">
+    <form method="GET" action="/search-hospitals" class="flex gap-4 flex-wrap">
+      <div class="flex-1">
+        <input name="query" type="text" class="form-control" placeholder="Search by name, city, or specialty..." value="{{ query }}"/>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+  </div>
+
+  {% if results %}
+  <div class="grid-3">
+    {% for h in results %}
+    <div class="hospital-card">
+      <div class="hospital-card-header">
+        <h3>{{ h.name }}</h3>
+        <p>📍 {{ h.city }}</p>
+      </div>
+      <div class="hospital-card-body">
+        <div class="stars">★★★★★</div>
+        <div class="text-xs text-muted mt-1">Rating: {{ h.rating }}/5</div>
+        <div class="hospital-card-meta">
+          <span>⏱ Wait: <strong>{{ h.waiting_time }}m</strong></span>
+          <span>💰 Avg: <strong>${{ h.avg_cost }}</strong></span>
+        </div>
+        <div class="tag-list">
+          {% for s in h.specialty %}
+          <span class="pill">{{ s }}</span>
+          {% endfor %}
+        </div>
+        <a href="/appointment?hospital_id={{ h.id }}" class="btn btn-primary btn-sm btn-full mt-4">Book Appointment →</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:4rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">🏥</div>
+    <h3>No hospitals found</h3>
+    <p class="text-muted mt-2">Try adjusting your search criteria.</p>
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Patient Dashboard – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<nav class="navbar">
+  <a class="navbar-brand" href="/">
+    <div class="navbar-logo-icon">🏥</div>
+    MediBridge<span style="color:var(--brand-400)">AI</span>
+  </a>
+  <div class="navbar-actions">
+    <a href="/profile" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+      <div class="avatar">{{ session.name[0] | upper if session.name else 'P' }}</div>
+      <span class="text-sm font-semibold hide-mobile" style="color:var(--slate-700);">{{ session.name or 'Patient' }}</span>
+    </a>
+    <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+
+<!-- ═══════════ LAYOUT ═══════════ -->
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <p class="sidebar-section-title">Main Menu</p>
+    <a href="/dashboard" class="sidebar-item active"><span class="icon">📊</span> Dashboard</a>
+    <a href="/ai-recommend" class="sidebar-item"><span class="icon">🤖</span> AI Recommendation</a>
+    <a href="/appointment" class="sidebar-item"><span class="icon">📅</span> Book Appointment</a>
+    <a href="/appointments" class="sidebar-item"><span class="icon">🗂️</span> My Appointments</a>
+    <a href="/records" class="sidebar-item"><span class="icon">📋</span> Medical Records</a>
+    <p class="sidebar-section-title">Discover</p>
+    <a href="/search-hospitals" class="sidebar-item"><span class="icon">🔍</span> Find Hospitals</a>
+    <a href="/search-doctors" class="sidebar-item"><span class="icon">👨‍⚕️</span> Find Doctors</a>
+    <p class="sidebar-section-title">Account</p>
+    <a href="/profile" class="sidebar-item"><span class="icon">👤</span> My Profile</a>
+    <a href="/logout" class="sidebar-item"><span class="icon">🚪</span> Logout</a>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="dashboard-content">
+
+    <!-- Welcome Banner -->
+    <div style="background:linear-gradient(135deg,var(--brand-700),var(--brand-500));border-radius:var(--radius-xl);padding:2rem;color:white;margin-bottom:2rem;">
+      <h2 style="color:white;margin-bottom:.4rem;">Hello, {{ session.name or 'Patient' }}! 👋</h2>
+      <p style="color:rgba(255,255,255,.8);">Manage your health journey — discover hospitals, get AI recommendations, and book appointments all in one place.</p>
+      <div style="margin-top:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+        <a href="/ai-recommend" class="btn btn-sm" style="background:rgba(255,255,255,.2);color:white;border:1px solid rgba(255,255,255,.3);">🤖 Get AI Recommendation</a>
+        <a href="/appointment" class="btn btn-sm" style="background:rgba(255,255,255,.2);color:white;border:1px solid rgba(255,255,255,.3);">📅 Book Appointment</a>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid-4 mb-8">
+      <div class="stat-card">
+        <div class="stat-card-info">
+          <p>Total Bookings</p>
+          <div class="stat-card-value">{{ stats.total_appointments or 0 }}</div>
+        </div>
+        <div class="stat-card-icon blue">📅</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-info">
+          <p>Upcoming</p>
+          <div class="stat-card-value">{{ stats.upcoming or 0 }}</div>
+        </div>
+        <div class="stat-card-icon green">✅</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-info">
+          <p>Completed</p>
+          <div class="stat-card-value">{{ stats.completed or 0 }}</div>
+        </div>
+        <div class="stat-card-icon amber">🏆</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-info">
+          <p>Medical Records</p>
+          <div class="stat-card-value">{{ stats.records or 0 }}</div>
+        </div>
+        <div class="stat-card-icon rose">📋</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+
+      <!-- Upcoming Appointments -->
+      <div class="card">
+        <div class="card-header flex justify-between items-center">
+          <div>
+            <div class="card-title">Upcoming Appointments</div>
+            <div class="card-subtitle">Your next scheduled visits</div>
+          </div>
+          <a href="/appointment" class="btn btn-primary btn-sm">+ Book</a>
+        </div>
+        {% if appointments %}
+          {% for appt in appointments %}
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 0;border-bottom:1px solid var(--slate-100);">
+            <div>
+              <div class="font-semibold text-sm" style="color:var(--slate-800);">{{ appt.hospital_name }}</div>
+              <div class="text-xs text-muted">Dr. {{ appt.doctor_name }} · {{ appt.specialty }}</div>
+              <div class="text-xs" style="color:var(--brand-600);margin-top:.25rem;font-weight:600;">📅 {{ appt.date }} at {{ appt.slot }}</div>
+            </div>
+            <span class="badge {{ 'badge-green' if appt.status == 'completed' else ('badge-blue' if appt.status == 'booked' else 'badge-red') }}">
+              {{ appt.status | title }}
+            </span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center;padding:2rem;color:var(--slate-400);">
+            <div style="font-size:2rem;margin-bottom:.5rem;">📅</div>
+            <p class="text-sm">No upcoming appointments yet.</p>
+            <a href="/appointment" class="btn btn-primary btn-sm mt-2">Book Your First Appointment</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Recent Medical Records -->
+      <div class="card">
+        <div class="card-header flex justify-between items-center">
+          <div>
+            <div class="card-title">Recent Medical Records</div>
+            <div class="card-subtitle">Latest diagnoses & prescriptions</div>
+          </div>
+          <a href="/records" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        {% if records %}
+          {% for rec in records %}
+          <div style="padding:.875rem 0;border-bottom:1px solid var(--slate-100);">
+            <div class="flex justify-between items-center">
+              <div class="font-semibold text-sm" style="color:var(--slate-800);">{{ rec.diagnosis }}</div>
+              <span class="text-xs text-muted">{{ rec.date }}</span>
+            </div>
+            <div class="text-xs text-muted">Dr. {{ rec.doctor_name }}</div>
+            <div class="text-xs" style="color:var(--slate-600);margin-top:.25rem;">💊 {{ rec.prescriptions | join(', ') if rec.prescriptions else 'No prescriptions' }}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center;padding:2rem;color:var(--slate-400);">
+            <div style="font-size:2rem;margin-bottom:.5rem;">📋</div>
+            <p class="text-sm">No medical records available yet.</p>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- AI Recommendation Quick Panel -->
+    <div class="card mt-6" style="background:linear-gradient(135deg,var(--brand-50),white);border-color:var(--brand-200);">
+      <div class="flex items-center gap-4 flex-wrap">
+        <div style="font-size:3rem;">🤖</div>
+        <div class="flex-1">
+          <h3>AI Hospital Recommendation</h3>
+          <p class="text-sm mt-1">Tell our AI about your symptoms, budget, and location to instantly discover the best-matched hospitals and doctors.</p>
+        </div>
+        <a href="/ai-recommend" class="btn btn-primary">Get AI Recommendation →</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+
+</body>
+</html>

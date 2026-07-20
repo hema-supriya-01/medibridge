@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Doctors – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><div class="navbar-logo-icon">🏥</div>MediBridge<span style="color:var(--brand-400)">AI</span></a>
+  <div class="navbar-actions">
+    {% if session.get('user_id') %}
+    <a href="/dashboard" class="btn btn-ghost btn-sm">Dashboard</a>
+    {% else %}
+    <a href="/patient-login" class="btn btn-ghost btn-sm">Login</a>
+    <a href="/patient-register" class="btn btn-primary btn-sm">Get Started</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container mt-8 mb-8">
+  <div class="mb-6 text-center">
+    <h2>Search Doctors</h2>
+    <p class="text-sm text-muted mt-2">Find a specialist for your condition</p>
+  </div>
+  
+  <div class="card mb-8">
+    <form method="GET" action="/search-doctors" class="flex gap-4 flex-wrap">
+      <div class="flex-1">
+        <input name="specialty" type="text" class="form-control" placeholder="Search by specialty (e.g., Cardiology, Neurology)..." value="{{ spec }}"/>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+  </div>
+
+  {% if doctors %}
+  <div class="grid-3">
+    {% for doc in doctors %}
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
+        <div class="avatar" style="width:48px;height:48px;font-size:1.2rem;">{{ doc.name[0] | upper }}</div>
+        <div>
+          <div class="font-semibold">{{ doc.name }}</div>
+          <div class="badge badge-blue mt-1">{{ doc.specialty }}</div>
+        </div>
+      </div>
+      <div class="text-sm text-muted mb-2">🏥 {{ doc.hospital_name }}</div>
+      <div class="text-xs text-muted mb-4">Availability: {{ doc.availability | join(', ') }}</div>
+      <a href="/appointment?specialty={{ doc.specialty }}" class="btn btn-primary btn-sm btn-full">Book Appointment</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:4rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">👨‍⚕️</div>
+    <h3>No doctors found</h3>
+    <p class="text-muted mt-2">Try adjusting your search criteria.</p>
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>

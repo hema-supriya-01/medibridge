@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor Appointments – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><div class="navbar-logo-icon">🏥</div>MediBridge<span style="color:var(--brand-400)">AI</span></a>
+  <div class="navbar-actions">
+    <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <p class="sidebar-section-title">Doctor Panel</p>
+    <a href="/doctor/dashboard" class="sidebar-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="/doctor/appointments" class="sidebar-item active"><span class="icon">📅</span> Appointments</a>
+    <a href="/doctor/prescribe" class="sidebar-item"><span class="icon">💊</span> Write Prescription</a>
+    <p class="sidebar-section-title">Account</p>
+    <a href="/logout" class="sidebar-item"><span class="icon">🚪</span> Logout</a>
+  </aside>
+  <main class="dashboard-content">
+    <div class="mb-6">
+      <h2>📅 My Appointments</h2>
+      <p class="text-sm text-muted mt-1">All appointments assigned to you.</p>
+    </div>
+    {% if appointments %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient Name</th>
+            <th>Date</th>
+            <th>Time Slot</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appt in appointments %}
+          <tr>
+            <td>
+              <div class="font-semibold" style="color:var(--slate-800);">{{ appt.patient_name }}</div>
+              <div class="text-xs text-muted">Age: {{ appt.patient_age }} · {{ appt.patient_gender }}</div>
+            </td>
+            <td>{{ appt.date }}</td>
+            <td>{{ appt.slot }}</td>
+            <td>
+              <span class="badge {{ 'badge-green' if appt.status == 'completed' else 'badge-blue' }}">{{ appt.status | title }}</span>
+            </td>
+            <td>
+              {% if appt.status == 'booked' %}
+              <a href="/doctor/prescribe?appointment_id={{ appt.id }}&patient_id={{ appt.patient_id }}" class="btn btn-primary btn-sm">Prescribe</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center;padding:3rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">📅</div>
+      <h3>No Appointments Yet</h3>
+    </div>
+    {% endif %}
+  </main>
+</div>
+</body>
+</html>

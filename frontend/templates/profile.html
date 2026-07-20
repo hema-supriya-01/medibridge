@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <style>
+    .profile-hero {
+      background: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+      border-radius: var(--radius-xl);
+      padding: 2.5rem 2rem 4.5rem;
+      color: white;
+      text-align: center;
+      margin-bottom: -3rem;
+      position: relative;
+    }
+    .profile-hero h1 { color: white; font-size: 1.6rem; margin-top: 0.75rem; }
+
+    .avatar-upload {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      margin: 0 auto;
+    }
+    .avatar-upload img,
+    .avatar-fallback {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 4px solid white;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .avatar-upload img { object-fit: cover; }
+    .avatar-fallback {
+      background: var(--brand-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: white;
+    }
+    .avatar-edit-btn {
+      position: absolute;
+      bottom: 4px; right: 4px;
+      background: white;
+      border: 2px solid var(--brand-200);
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .avatar-edit-btn:hover { transform: scale(1.15); background: var(--brand-50); }
+    #photoInput { display: none; }
+
+    .role-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: white;
+      border-radius: 999px;
+      padding: 0.25rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 0.4rem;
+    }
+
+    .profile-body {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 4.5rem 2rem 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--slate-200);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .stat-box {
+      background: var(--brand-50);
+      border: 1px solid var(--brand-100);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-num { font-size: 1.7rem; font-weight: 800; color: var(--brand-600); }
+    .stat-lbl { font-size: 0.72rem; color: var(--slate-500); margin-top: 0.2rem; }
+
+    .section-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--slate-400);
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 500px) { .detail-grid { grid-template-columns: 1fr; } }
+
+    .detail-item {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .detail-item:hover { border-color: var(--brand-300); box-shadow: var(--shadow-sm); }
+    .detail-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--slate-400);
+      margin-bottom: 0.3rem;
+    }
+    .detail-value { font-weight: 600; color: var(--slate-800); font-size: 0.95rem; }
+
+    .tag-pill {
+      display: inline-block;
+      background: var(--brand-100);
+      color: var(--brand-700);
+      border-radius: 999px;
+      padding: 0.25rem 0.8rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin: 0.2rem 0.2rem 0 0;
+    }
+
+    .upload-toast {
+      position: fixed;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--brand-700);
+      color: white;
+      padding: 0.75rem 1.75rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem; font-weight: 500;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      z-index: 999;
+      box-shadow: var(--shadow-lg);
+    }
+    .upload-toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body style="background:var(--slate-100);">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="navbar-brand" href="/">
+    <div class="navbar-logo-icon">🏥</div>
+    MediBridge<span style="color:var(--brand-400)">AI</span>
+  </a>
+  <ul class="navbar-nav hide-mobile">
+    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/ai-recommend">AI Recommend</a></li>
+    <li><a href="/appointment">Book Appointment</a></li>
+    <li><a href="/appointments">My Appointments</a></li>
+    <li><a href="/records">Medical Records</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/profile" style="text-decoration:none;display:flex;align-items:center;gap:0.5rem;">
+      <div class="avatar">{{ session.name[0] | upper if session.name else 'P' }}</div>
+      <span class="text-sm font-semibold hide-mobile" style="color:var(--slate-700);">{{ session.name or 'Patient' }}</span>
+    </a>
+    <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+
+<!-- PROFILE -->
+<div class="container" style="max-width:720px;padding:5.5rem 1rem 4rem;">
+
+  <!-- Hero -->
+  <div class="profile-hero">
+    <div class="avatar-upload">
+      <img id="profileImg" src="" alt="Profile" style="display:none;"/>
+      <div class="avatar-fallback" id="avatarFallback">{{ user['name'][0] | upper }}</div>
+      <label class="avatar-edit-btn" for="photoInput" title="Upload photo">📷</label>
+      <input type="file" id="photoInput" accept="image/*"/>
+    </div>
+    <h1>{{ user['name'] }}</h1>
+    <div class="role-badge">{{ user['role'].replace('_',' ').title() }}</div>
+    <p style="color:rgba(255,255,255,0.75);margin-top:0.4rem;font-size:0.9rem;">{{ user['email'] }}</p>
+  </div>
+
+  <!-- Body Card -->
+  <div class="profile-body">
+
+    <!-- Quick Stats -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">{{ user.get('age','—') }}</div>
+        <div class="stat-lbl">Age (yrs)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">{{ user.get('gender','—')[0] if user.get('gender') else '—' }}</div>
+        <div class="stat-lbl">Gender</div>
+      </div>
+      <div class="stat-box">
+        {% if user['role'] == 'patient' %}
+          <div class="stat-num">{{ user.get('medical_history',[])|length }}</div>
+          <div class="stat-lbl">Conditions</div>
+        {% else %}
+          <div class="stat-num">{{ user.get('availability',[])|length }}</div>
+          <div class="stat-lbl">Avail. Days</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Personal Info -->
+    <p class="section-title">👤 Personal Information</p>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Full Name</div>
+        <div class="detail-value">{{ user['name'] }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Email Address</div>
+        <div class="detail-value" style="word-break:break-all;font-size:0.87rem;">{{ user['email'] }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Age</div>
+        <div class="detail-value">{{ user.get('age','Not set') }}{% if user.get('age') %} years{% endif %}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Gender</div>
+        <div class="detail-value">{{ user.get('gender','Not set') }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Account Role</div>
+        <div class="detail-value">{{ user['role'].replace('_',' ').title() }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Patient ID</div>
+        <div class="detail-value" style="font-family:monospace;font-size:0.82rem;color:var(--slate-500);">{{ user['id'] }}</div>
+      </div>
+    </div>
+
+    <!-- Patient Medical Info -->
+    {% if user['role'] == 'patient' %}
+    <p class="section-title">🩺 Medical Information</p>
+    <div class="detail-item" style="margin-bottom:1rem;">
+      <div class="detail-label">Diagnosed Conditions / Medical History</div>
+      <div style="margin-top:0.5rem;">
+        {% if user.get('medical_history') %}
+          {% for c in user['medical_history'] %}
+            <span class="tag-pill">{{ c }}</span>
+          {% endfor %}
+        {% else %}
+          <span style="color:var(--slate-400);font-size:0.88rem;">No conditions recorded</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Blood Group</div>
+        <div class="detail-value">{{ user.get('blood_group','Not provided') }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Allergies</div>
+        <div class="detail-value">{{ user.get('allergies','None on record') }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Doctor Professional Info -->
+    {% if user['role'] == 'doctor' %}
+    <p class="section-title">🏥 Professional Information</p>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Specialty</div>
+        <div class="detail-value">{{ user.get('specialty','N/A') }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Hospital ID</div>
+        <div class="detail-value" style="font-family:monospace;font-size:0.82rem;color:var(--slate-500);">{{ user.get('hospital_id','N/A') }}</div>
+      </div>
+    </div>
+    <div class="detail-item" style="margin-top:1rem;">
+      <div class="detail-label">Available Days</div>
+      <div style="margin-top:0.4rem;">
+        {% for d in user.get('availability',[]) %}<span class="tag-pill">{{ d }}</span>{% endfor %}
+      </div>
+    </div>
+    <div class="detail-item" style="margin-top:1rem;">
+      <div class="detail-label">Consultation Slots</div>
+      <div style="margin-top:0.4rem;">
+        {% for s in user.get('time_slots',[]) %}<span class="tag-pill">{{ s }}</span>{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div style="margin-top:2.5rem;display:flex;gap:1rem;justify-content:flex-end;flex-wrap:wrap;border-top:1px solid var(--slate-200);padding-top:1.5rem;">
+      <a href="/dashboard" class="btn btn-outline">← Back to Dashboard</a>
+      <a href="/logout" class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);">Logout</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="upload-toast" id="toast">✅ Profile photo updated!</div>
+
+<script>
+  const photoInput     = document.getElementById('photoInput');
+  const profileImg     = document.getElementById('profileImg');
+  const avatarFallback = document.getElementById('avatarFallback');
+  const toast          = document.getElementById('toast');
+  const STORAGE_KEY    = 'mb_photo_{{ user["id"] }}';
+
+  // Load saved photo
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    profileImg.src = saved;
+    profileImg.style.display = 'block';
+    avatarFallback.style.display = 'none';
+  }
+
+  // File input handler
+  photoInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { alert('Please pick a valid image.'); return; }
+    if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5 MB.'); return; }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      profileImg.src = dataUrl;
+      profileImg.style.display = 'block';
+      avatarFallback.style.display = 'none';
+      localStorage.setItem(STORAGE_KEY, dataUrl);
+      showToast();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function showToast() {
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

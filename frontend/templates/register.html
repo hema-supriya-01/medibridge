@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account – MediBridge AI</title>
+  <meta name="description" content="Create your free MediBridge AI patient account to book appointments and discover hospitals."/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body class="auth-page">
+
+<div class="auth-box animate-fade-up" style="max-width:520px;">
+  <!-- Logo -->
+  <div class="auth-logo">
+    <div class="auth-logo-icon">🏥</div>
+    <h2>MediBridge AI</h2>
+    <p>Create Your Account</p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+        {{ '⚠️' if category == 'error' else '✅' }} {{ message }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" action="/patient-register" id="regForm">
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <div class="form-control-wrap">
+        <span class="form-control-icon">👤</span>
+        <input name="name" type="text" class="form-control icon-left"
+               placeholder="John Doe" required value="{{ request.form.name or '' }}"/>
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Age</label>
+        <input name="age" type="number" min="1" max="120" class="form-control"
+               placeholder="35" required value="{{ request.form.age or '' }}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gender</label>
+        <select name="gender" class="form-control">
+          <option value="Male" {{ 'selected' if request.form.gender == 'Male' }}>Male</option>
+          <option value="Female" {{ 'selected' if request.form.gender == 'Female' }}>Female</option>
+          <option value="Other" {{ 'selected' if request.form.gender == 'Other' }}>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <div class="form-control-wrap">
+        <span class="form-control-icon">✉️</span>
+        <input name="email" type="email" class="form-control icon-left"
+               placeholder="you@example.com" required value="{{ request.form.email or '' }}"/>
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="form-control-wrap">
+          <span class="form-control-icon">🔒</span>
+          <input name="password" id="pwd" type="password" class="form-control icon-left"
+                 placeholder="Min 6 characters" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="form-control-wrap">
+          <span class="form-control-icon">🔒</span>
+          <input name="confirm_password" id="cpwd" type="password" class="form-control icon-left"
+                 placeholder="Repeat password" required/>
+        </div>
+      </div>
+    </div>
+
+    <div id="pwdError" class="alert alert-error hidden">Passwords do not match.</div>
+
+    <button type="submit" class="btn btn-primary btn-full btn-lg" id="regBtn">
+      Create Patient Account
+    </button>
+  </form>
+
+  <div class="auth-divider"><span>Already have an account?</span></div>
+
+  <a href="/patient-login" class="btn btn-secondary btn-full">Sign In Instead</a>
+
+  <div class="text-center mt-4">
+    <a href="/" class="text-sm text-muted">← Back to Home</a>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('regForm');
+  form.addEventListener('submit', function(e) {
+    const pwd = document.getElementById('pwd').value;
+    const cpwd = document.getElementById('cpwd').value;
+    const errDiv = document.getElementById('pwdError');
+    if (pwd !== cpwd) {
+      e.preventDefault();
+      errDiv.classList.remove('hidden');
+      return;
+    }
+    errDiv.classList.add('hidden');
+    const btn = document.getElementById('regBtn');
+    btn.innerHTML = '<span class="spinner"></span>&nbsp;Creating account…';
+    btn.disabled = true;
+  });
+</script>
+</body>
+</html>

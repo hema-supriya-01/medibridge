@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Profile – MediBridge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><div class="navbar-logo-icon">🏥</div>MediBridge<span style="color:var(--brand-400)">AI</span></a>
+  <div class="navbar-actions"><a href="/logout" class="btn btn-ghost btn-sm">Logout</a></div>
+</nav>
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <p class="sidebar-section-title">Admin Panel</p>
+    <a href="/admin/dashboard" class="sidebar-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="/admin/doctors" class="sidebar-item"><span class="icon">👨‍⚕️</span> Manage Doctors</a>
+    <a href="/admin/appointments" class="sidebar-item"><span class="icon">📅</span> Appointments</a>
+    <a href="/admin/profile" class="sidebar-item active"><span class="icon">🏥</span> Hospital Profile</a>
+    <p class="sidebar-section-title">Account</p>
+    <a href="/logout" class="sidebar-item"><span class="icon">🚪</span> Logout</a>
+  </aside>
+  <main class="dashboard-content">
+    <div class="mb-6"><h2>🏥 Hospital Profile</h2><p class="text-sm text-muted mt-1">Update your hospital details.</p></div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }} mb-4">{{ '⚠️' if category == 'error' else '✅' }} {{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    <div class="card" style="max-width: 600px;">
+      <form method="POST" action="/admin/profile">
+        <div class="form-group">
+          <label class="form-label">Hospital Name</label>
+          <input name="name" type="text" class="form-control" value="{{ hospital.name }}" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">City</label>
+          <input name="city" type="text" class="form-control" value="{{ hospital.city }}" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Specialties (comma-separated)</label>
+          <input name="specialty" type="text" class="form-control" value="{{ hospital.specialty | join(', ') }}" required/>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Average Cost ($)</label>
+            <input name="avg_cost" type="number" class="form-control" value="{{ hospital.avg_cost }}" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Wait Time (min)</label>
+            <input name="waiting_time" type="number" class="form-control" value="{{ hospital.waiting_time }}" required/>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Update Profile</button>
+      </form>
+    </div>
+  </main>
+</div>
+</body>
+</html>
